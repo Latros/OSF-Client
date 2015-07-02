@@ -5,11 +5,7 @@
 
 (enable-console-print!)
 
-(defn handler [response]
-  (.log js/console (map? response)))
-
-(defonce app-state
- (atom (GET "https://osf-api.herokuapp.com/project" {:handler handler :error-handler handler})))
+(def app-state (.log js/console (type (GET "https://osf-api.herokuapp.com/"))))
 
 ; (atom
 ;   {:projects
@@ -30,10 +26,9 @@
       (dom/div nil
         (dom/h2 nil "Project list")
         (apply dom/ul nil
-          (om/build-all project-view data))))))
+          (om/build-all project-view (seq data)))))))
 
-(om/root projects-view app-state
-  {:target (. js/document (getElementById "app"))})
+(om/root projects-view app-state {:target (. js/document (getElementById "app"))})
 
 (defn on-js-reload [])
 
