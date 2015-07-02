@@ -5,30 +5,34 @@
 
 (enable-console-print!)
 
-(def app-state (.log js/console (type (GET "https://osf-api.herokuapp.com/"))))
+(defn init-app [response]
 
-; (atom
-;   {:projects
-;    [{:name "Test Project" :github-url "https://github.com/someUser/someRepo.git"}
-;     {:name "Sample" :github-url "https://github.com/someUser/someOtherRepo.git"}]})
+    (defonce app-state response)
 
-(defn project-view [project owner]
-  (reify
-    om/IRender
-    (render [this]
-      (dom/li nil (str (:name project) ", ")
-        (dom/a #js {:href (:github-url project)} (:github-url project))))))
+    (.log js/console (pr-str response))
 
-(defn projects-view [data owner]
-  (reify
-    om/IRender
-    (render [this]
-      (dom/div nil
-        (dom/h2 nil "Project list")
-        (apply dom/ul nil
-          (om/build-all project-view (seq data)))))))
+    (defn project-view [project owner]
+      (reify
+        om/IRender
+        (render [this]
+          (dom/li nil (str (:name project) ", ")
+            (dom/a #js {:href (:githubRepo project)} (:githubRepo project))))))
 
-(om/root projects-view app-state {:target (. js/document (getElementById "app"))})
+    (defn projects-view [data owner]
+      (reify
+        om/IRender
+        (render [this]
+          (dom/div nil
+            (dom/h2 nil "Project list")
+            (apply dom/ul nil
+              (om/build-all project-view data))))))
+
+    (om/root projects-view app-state {:target (. js/document (getElementById "app"))}))
+
+(GET "https://osf-api.herokuapp.com/project"
+  {:handler init-app
+   :response-format :json
+   :keywords? true})
 
 (defn on-js-reload [])
 
