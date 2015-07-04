@@ -16,7 +16,7 @@
         om/IRender
         (render [this]
           (dom/li nil (str (:name project) ", ")
-            (dom/a #js {:href (:githubRepo project)} (:githubRepo project))))))
+            (dom/a #js {:href (:github-repo project)} (:githubRepo project))))))
 
     (defn projects-view [data owner]
       (reify
