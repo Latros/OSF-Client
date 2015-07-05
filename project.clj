@@ -1,70 +1,91 @@
-(defproject client "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
+(defproject reagent-client "0.1.0-SNAPSHOT"
+  :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure "1.7.0-RC1"]
-                 [org.clojure/clojurescript "0.0-3297"]
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
-                 [sablono "0.3.4"]
-                 [org.omcljs/om "0.8.8"]
-                 [cljs-ajax "0.3.13"]
-                 [tailrecursion/cljson "1.0.7"]]
+  :source-paths ["src/clj" "src/cljs"]
 
-  :plugins [[lein-cljsbuild "1.0.5"]
-            [lein-figwheel "0.3.5"]]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [ring-server "0.4.0"]
+                 [cljsjs/react "0.13.3-0"]
+                 [reagent "0.5.0"]
+                 [reagent-forms "0.5.1"]
+                 [reagent-utils "0.1.5"]
+                 [ring "1.3.2"]
+                 [ring/ring-defaults "0.1.5"]
+                 [prone "0.8.2"]
+                 [compojure "1.3.4"]
+                 [hiccup "1.0.5"]
+                 [environ "1.0.0"]
+                 [org.clojure/clojurescript "0.0-3308" :scope "provided"]
+                 [secretary "1.2.3"]]
 
-  :source-paths ["src"]
+  :plugins [[lein-environ "1.0.0"]
+            [lein-asset-minifier "0.2.2"]]
 
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+  :ring {:handler reagent-client.handler/app
+         :uberwar-name "reagent-client.war"}
 
-  :cljsbuild {
-    :builds [{:id "dev"
-              :source-paths ["src"]
+  :min-lein-version "2.5.0"
 
-              :figwheel { :on-jsload "client.core/on-js-reload" }
+  :uberjar-name "reagent-client.jar"
 
-              :compiler {:main client.core
-                         :asset-path "js/compiled/out"
-                         :output-to "resources/public/js/compiled/client.js"
-                         :output-dir "resources/public/js/compiled/out"
-                         :source-map-timestamp true }}
-             {:id "min"
-              :source-paths ["src"]
-              :compiler {:output-to "resources/public/js/compiled/client.js"
-                         :main client.core
-                         :optimizations :advanced
-                         :pretty-print false}}]}
+  :main reagent-client.server
 
-  :figwheel {
-             ;; :http-server-root "public" ;; default and assumes "resources"
-             ;; :server-port 3449 ;; default
-             ;; :server-ip "127.0.0.1"
+  :clean-targets ^{:protect false} [:target-path
+                                    [:cljsbuild :builds :app :compiler :output-dir]
+                                    [:cljsbuild :builds :app :compiler :output-to]]
 
-             :css-dirs ["resources/public/css"] ;; watch and update CSS
+  :minify-assets
+  {:assets
+    {"resources/public/css/site.min.css" "resources/public/css/site.css"}}
 
-             ;; Start an nREPL server into the running figwheel process
-             ;; :nrepl-port 7888
+  :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
+                             :compiler {:output-to     "resources/public/js/app.js"
+                                        :output-dir    "resources/public/js/out"
+                                        :asset-path   "js/out"
+                                        :optimizations :none
+                                        :pretty-print  true}}}}
 
-             ;; Server Ring Handler (optional)
-             ;; if you want to embed a ring handler into the figwheel http-kit
-             ;; server, this is for simple ring servers, if this
-             ;; doesn't work for you just run your own server :)
-             ;; :ring-handler hello_world.server/handler
+  :profiles {:dev {:repl-options {:init-ns reagent-client.repl
+                                  :nrepl-middleware []}
 
-             ;; To be able to open files in your editor from the heads up display
-             ;; you will need to put a script on your path.
-             ;; that script will have to take a file path and a line number
-             ;; ie. in  ~/bin/myfile-opener
-             ;; #! /bin/sh
-             ;; emacsclient -n +$2 $1
-             ;;
-             ;; :open-file-command "myfile-opener"
+                   :dependencies [[ring-mock "0.1.5"]
+                                  [ring/ring-devel "1.3.2"]
+                                  [leiningen-core "2.5.1"]
+                                  [lein-figwheel "0.3.5"]
+                                  [org.clojure/tools.nrepl "0.2.10"]
+                                  [pjstadig/humane-test-output "0.7.0"]]
 
-             ;; if you want to disable the REPL
-             ;; :repl false
+                   :source-paths ["env/dev/clj"]
+                   :plugins [[lein-figwheel "0.3.3"]
+                             [lein-cljsbuild "1.0.6"]]
 
-             ;; to configure a different figwheel logfile path
-             ;; :server-logfile "tmp/logs/figwheel-logfile.log"
-             })
+                   :injections [(require 'pjstadig.humane-test-output)
+                                (pjstadig.humane-test-output/activate!)]
+
+                   :figwheel {:http-server-root "public"
+                              :server-port 3449
+                              :nrepl-port 7002
+                              :css-dirs ["resources/public/css"]
+                              :ring-handler reagent-client.handler/app}
+
+                   :env {:dev true}
+
+                   :cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]
+                                              :compiler {:main "reagent-client.dev"
+                                                         :source-map true}}
+}
+}}
+
+             :uberjar {:hooks [leiningen.cljsbuild minify-assets.plugin/hooks]
+                       :env {:production true}
+                       :aot :all
+                       :omit-source true
+                       :cljsbuild {:jar true
+                                   :builds {:app
+                                             {:source-paths ["env/prod/cljs"]
+                                              :compiler
+                                              {:optimizations :advanced
+                                               :pretty-print false}}}}}})

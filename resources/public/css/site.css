@@ -1,0 +1,90 @@
+body {
+  font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 72px;
+  -webkit-font-smoothing: antialiased;
+  font-size: 1.125em;
+  color: #333;
+  line-height: 1.5em;
+}
+
+h1, h2, h3 {
+  color: #000;
+}
+h1 {
+  font-size: 2.5em
+}
+
+h2 {
+  font-size: 2em
+}
+
+h3 {
+  font-size: 1.5em
+}
+
+a {
+  text-decoration: none;
+  color: #09f;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.page-title {
+  text-align: center;
+}
+
+.nav-wrapper {
+  text-align: center;
+
+}
+a {
+  margin: 0 40px;
+}
+
+.return-to-home a {
+  display: block;
+  text-align: center;
+}
+
+.new-project-form {
+  margin: 20px 0 40px 0;
+  text-align: center;
+}
+
+.new-project-form form {
+  margin: 0 auto;
+  text-align: left;
+  display: inline-block;
+}
+
+.new-project-form label {
+  display: block;
+}
+
+.new-project-form .form-group {
+  margin: 10px 0;
+}
+
+.new-project-form input {
+  margin-top: 5px;
+}
+
+.new-project-form select {
+  margin-top: 10px;
+}
+
+.new-project-form input, .new-project-form select {
+  display: block;
+  width: 300px;
+  height: 30px;
+}
+
+.new-project-form button {
+  display: block;
+  padding: 10px 20px;
+  margin: 20px auto 0 auto;
+}
